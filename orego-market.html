@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orego — Market</title>
+<meta name="theme-color" content="#0A0B0D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0B0D; --panel:#111318; --panel-2:#171A20; --line:#22262D;
+    --text:#F3F4F5; --muted:#8A9099; --muted-2:#585E67;
+    --gold:#E8B84B; --gold-soft:rgba(232,184,75,0.12);
+    --gain:#39D98A; --gain-soft:rgba(57,217,138,0.12);
+    --loss:#FF6161; --loss-soft:rgba(255,97,97,0.12);
+    --radius:18px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    font-family:'Inter', sans-serif;
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(232,184,75,0.06), transparent 60%), var(--ink);
+    color:var(--text); -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; }
+  .num{ font-family:'IBM Plex Mono', monospace; font-variant-numeric:tabular-nums; }
+  .display{ font-family:'Space Grotesk', sans-serif; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+  .green{ color:var(--gain); } .red{ color:var(--loss); }
+
+  .sidebar{
+    position:fixed; left:0; top:0; width:246px; height:100vh; background:var(--panel);
+    border-right:1px solid var(--line); padding:28px 20px; display:flex; flex-direction:column; z-index:20;
+  }
+  .logo{ display:flex; align-items:center; gap:12px; margin-bottom:38px; padding:0 6px; }
+  .logo-mark{ width:32px; height:32px; }
+  .logo-mark svg{ width:100%; height:100%; display:block; }
+  .logo h2{ font-family:'Space Grotesk'; font-size:19px; font-weight:700; }
+  .logo .sub{ font-size:10.5px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+  .menu{ display:flex; flex-direction:column; gap:3px; }
+  .menu-label{ font-size:10.5px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.09em; padding:0 14px; margin:18px 0 8px; }
+  .menu-label:first-child{ margin-top:0; }
+  .menu a{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:14px; font-weight:500; padding:10px 14px; border-radius:11px; position:relative; transition:background .15s ease, color .15s ease; }
+  .menu a svg{ width:17px; height:17px; flex-shrink:0; }
+  .menu a:hover{ background:var(--panel-2); color:var(--text); }
+  .menu a.active{ background:var(--gold-soft); color:var(--gold); }
+  .menu a.active::before{ content:''; position:absolute; left:-20px; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--gold); }
+  .sidebar-foot{ margin-top:auto; padding-top:20px; border-top:1px solid var(--line); }
+  .plan-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:14px; padding:14px; font-size:12px; color:var(--muted); }
+  .plan-card strong{ display:block; color:var(--text); font-size:13px; margin-bottom:3px; }
+
+  .main{ margin-left:246px; padding:34px 40px 60px; max-width:1240px; }
+  .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; gap:20px; flex-wrap:wrap; }
+  .topbar-heading .eyebrow{ font-size:11px; color:var(--gold); letter-spacing:.1em; text-transform:uppercase; font-weight:600; margin-bottom:6px; }
+  .topbar-heading h1{ font-family:'Space Grotesk'; font-size:24px; font-weight:600; }
+  .topbar-heading p{ font-size:13px; color:var(--muted); margin-top:5px; }
+
+  .search{ display:flex; align-items:center; gap:9px; background:var(--panel); border:1px solid var(--line); padding:11px 15px; border-radius:12px; width:280px; color:var(--muted-2); font-size:13px; }
+  .search svg{ width:15px; height:15px; flex-shrink:0; }
+  .search input{ background:none; border:none; outline:none; color:var(--text); font-size:13px; width:100%; font-family:inherit; }
+  .search input::placeholder{ color:var(--muted-2); }
+
+  .filters{ display:flex; gap:8px; margin-bottom:18px; }
+  .filter-btn{ border:1px solid var(--line); background:var(--panel); color:var(--muted); padding:8px 15px; border-radius:10px; font-size:12.5px; font-weight:500; cursor:pointer; }
+  .filter-btn.active{ background:var(--gold-soft); color:var(--gold); border-color:transparent; }
+  .filter-btn:hover:not(.active){ color:var(--text); }
+
+  .asset-table{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .asset-row{ display:grid; grid-template-columns:2.2fr 1fr 1fr 1fr auto; align-items:center; gap:12px; padding:16px 22px; border-top:1px solid var(--line); transition:background .12s ease; }
+  .asset-row:first-child{ border-top:none; }
+  .asset-row.head{ color:var(--muted-2); font-size:11px; text-transform:uppercase; letter-spacing:.06em; padding:14px 22px; }
+  a.asset-row:hover{ background:var(--panel-2); cursor:pointer; }
+  .asset-id{ display:flex; align-items:center; gap:12px; }
+  .asset-icon{ width:36px; height:36px; border-radius:10px; background:var(--panel-2); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk'; font-weight:700; font-size:11px; color:var(--gold); flex-shrink:0; }
+  .asset-name{ font-size:13.5px; font-weight:600; }
+  .asset-sub{ font-size:11.5px; color:var(--muted-2); margin-top:1px; }
+  .asset-class{ font-size:12px; color:var(--muted); }
+  .asset-price{ font-size:13.5px; }
+  .asset-change{ font-size:12.5px; font-weight:600; }
+  .go-btn{ width:32px; height:32px; border-radius:9px; background:var(--panel-2); display:flex; align-items:center; justify-content:center; color:var(--muted); }
+  .go-btn svg{ width:14px; height:14px; }
+  @media (max-width:760px){
+    .asset-row{ grid-template-columns:2fr 1fr auto; }
+    .asset-class{ display:none; }
+  }
+  @media (max-width:900px){
+    .sidebar{ position:relative; width:100%; height:auto; padding:18px 20px; }
+    .sidebar-foot{ display:none; }
+    .menu{ flex-direction:row; flex-wrap:wrap; }
+    .menu-label{ display:none; }
+    .menu a::before{ display:none; }
+    .main{ margin-left:0; padding:26px 20px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 48 48" fill="none">
+        <path d="M14.4,12.5 A15,15 0 0,1 38.5,27.9" stroke="#F3F4F5" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M14.4,35.5 A15,15 0 0,0 38.5,20.1" stroke="#F3F4F5" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M14.4,15.5 L14.4,32.5 Q14.4,35.5 16.95,33.92 L30.45,25.58 Q33,24 30.45,22.42 L16.95,14.08 Q14.4,12.5 14.4,15.5 Z" fill="#F3F4F5"/>
+      </svg>
+    </div>
+    <div><h2>OREGO</h2><div class="sub">Portfolio</div></div>
+  </div>
+  <nav class="menu">
+    <div class="menu-label">Overview</div>
+    <a href="orego-refined.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
+    <a href="orego-portfolio.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 7v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>Portfolio</a>
+    <a href="orego-market.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>Market</a>
+    <div class="menu-label">Manage</div>
+    <a href="orego-portfolio.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Assets</a>
+    <a href="orego-refined.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l6 6v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v6h6"/></svg>Transactions</a>
+  </nav>
+  <div class="sidebar-foot">
+    <div class="plan-card"><strong>Demo Mode</strong>Simulated trades — no real money moves.</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-heading">
+      <div class="eyebrow">Market</div>
+      <h1>Browse assets</h1>
+      <p>Prices are simulated for demo purposes.</p>
+    </div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="search-input" placeholder="Search by name or symbol...">
+    </div>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-filter="All">All</button>
+    <button class="filter-btn" data-filter="Stock">Stocks</button>
+    <button class="filter-btn" data-filter="ETF">ETFs</button>
+    <button class="filter-btn" data-filter="Crypto">Crypto</button>
+  </div>
+
+  <div class="asset-table">
+    <div class="asset-row head">
+      <span>Asset</span><span>Class</span><span>Price</span><span>24h</span><span></span>
+    </div>
+    <div id="asset-list"></div>
+  </div>
+</div>
+
+<script src="orego-engine.js"></script>
+<script>
+  let activeFilter = 'All';
+  let query = '';
+
+  function render(){
+    const list = document.getElementById('asset-list');
+    const filtered = OREGO_ASSETS.filter(a=>{
+      const matchesFilter = activeFilter === 'All' || a.class === activeFilter;
+      const matchesQuery = (a.name + a.symbol).toLowerCase().includes(query.toLowerCase());
+      return matchesFilter && matchesQuery;
+    });
+    list.innerHTML = filtered.map(a=>{
+      const positive = a.change >= 0;
+      return `
+        <a class="asset-row" href="orego-trade.html?symbol=${a.symbol}">
+          <div class="asset-id">
+            <div class="asset-icon">${a.symbol.slice(0,2)}</div>
+            <div><div class="asset-name">${a.name}</div><div class="asset-sub">${a.symbol}</div></div>
+          </div>
+          <div class="asset-class">${a.class}</div>
+          <div class="asset-price num">${OregoEngine.formatMoney(a.price)}</div>
+          <div class="asset-change num ${positive ? 'green':'red'}">${positive?'+':''}${a.change.toFixed(2)}%</div>
+          <div class="go-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+        </a>`;
+    }).join('') || `<div class="asset-row"><span style="color:var(--muted);">No assets match your search.</span></div>`;
+  }
+
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      render();
+    });
+  });
+  document.getElementById('search-input').addEventListener('input', e=>{
+    query = e.target.value;
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

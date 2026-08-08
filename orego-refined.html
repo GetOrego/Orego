@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orego — Portfolio Dashboard</title>
+<meta name="description" content="Track your stocks, ETFs, and crypto in one real-time Orego dashboard — balances, performance, and recent activity at a glance.">
+<meta name="theme-color" content="#0A0B0D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0B0D;
+    --panel:#111318;
+    --panel-2:#171A20;
+    --line:#22262D;
+    --text:#F3F4F5;
+    --muted:#8A9099;
+    --muted-2:#585E67;
+    --gold:#E8B84B;
+    --gold-soft:rgba(232,184,75,0.12);
+    --gain:#39D98A;
+    --gain-soft:rgba(57,217,138,0.12);
+    --loss:#FF6161;
+    --loss-soft:rgba(255,97,97,0.12);
+    --radius:18px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    font-family:'Inter', sans-serif;
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(232,184,75,0.06), transparent 60%),
+      var(--ink);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    position:relative;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0; z-index:-2; pointer-events:none;
+    background:
+      radial-gradient(620px 620px at 10% 12%, rgba(232,184,75,0.13), transparent 62%),
+      radial-gradient(680px 680px at 90% 82%, rgba(57,217,138,0.10), transparent 62%),
+      radial-gradient(520px 520px at 70% 6%, rgba(93,140,255,0.07), transparent 60%);
+    animation: bg-drift 26s ease-in-out infinite alternate;
+  }
+  body::after{
+    content:'';
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size:46px 46px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 35%, transparent 100%);
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 35%, transparent 100%);
+  }
+  @keyframes bg-drift{
+    0%{ transform:translate3d(0,0,0) scale(1); }
+    100%{ transform:translate3d(-2.5%,2%,0) scale(1.06); }
+  }
+  @media (prefers-reduced-motion: reduce){ body::before{ animation:none; } }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; }
+  ::selection{ background:var(--gold); color:#0A0B0D; }
+  .num{ font-family:'IBM Plex Mono', monospace; font-variant-numeric:tabular-nums; }
+  .display{ font-family:'Space Grotesk', sans-serif; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+
+  /* ================= Sidebar ================= */
+  .sidebar{
+    position:fixed; left:0; top:0; width:246px; height:100vh;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    padding:28px 20px;
+    display:flex; flex-direction:column;
+    z-index:20;
+  }
+  .logo{
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:38px; padding:0 6px;
+  }
+  .logo-mark{ position:relative; width:32px; height:32px; flex-shrink:0; }
+  .logo-mark svg{ width:100%; height:100%; display:block; }
+  .logo-mark .dot{
+    position:absolute; bottom:-1px; right:-1px; width:8px; height:8px;
+    border-radius:50%; background:var(--gain); box-shadow:0 0 0 3px var(--panel);
+  }
+  .logo-mark .dot::after{
+    content:''; position:absolute; inset:0; border-radius:50%;
+    background:var(--gain); animation:pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse{ 0%{transform:scale(1);opacity:.7;} 100%{transform:scale(2.8);opacity:0;} }
+  .logo h2{
+    font-family:'Space Grotesk'; font-size:19px; font-weight:700; letter-spacing:-0.01em;
+  }
+  .logo .sub{ font-size:10.5px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+
+  .menu{ display:flex; flex-direction:column; gap:3px; }
+  .menu-label{
+    font-size:10.5px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.09em;
+    padding:0 14px; margin:18px 0 8px;
+  }
+  .menu-label:first-child{ margin-top:0; }
+  .menu a{
+    display:flex; align-items:center; gap:12px;
+    color:var(--muted); font-size:14px; font-weight:500;
+    padding:10px 14px; border-radius:11px; position:relative;
+    transition:background .15s ease, color .15s ease;
+  }
+  .menu a svg{ width:17px; height:17px; flex-shrink:0; }
+  .menu a:hover{ background:var(--panel-2); color:var(--text); }
+  .menu a.active{ background:var(--gold-soft); color:var(--gold); }
+  .menu a.active::before{
+    content:''; position:absolute; left:-20px; top:50%; transform:translateY(-50%);
+    width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--gold);
+  }
+
+  .sidebar-foot{
+    margin-top:auto; padding-top:20px; border-top:1px solid var(--line);
+  }
+  .plan-card{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:14px;
+    padding:14px; font-size:12px; color:var(--muted);
+  }
+  .plan-card strong{ display:block; color:var(--text); font-size:13px; margin-bottom:3px; }
+
+  /* ================= Main ================= */
+  .main{ margin-left:246px; padding:34px 40px 60px; max-width:1240px; }
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:30px; gap:20px; flex-wrap:wrap;
+  }
+  .topbar-heading .eyebrow{
+    font-size:11px; color:var(--gold); letter-spacing:.1em; text-transform:uppercase;
+    font-weight:600; margin-bottom:6px;
+  }
+  .topbar-heading h1{
+    font-family:'Space Grotesk'; font-size:24px; font-weight:600; letter-spacing:-0.01em;
+  }
+  .topbar-heading p{ font-size:13px; color:var(--muted); margin-top:5px; }
+
+  .topbar-actions{ display:flex; align-items:center; gap:12px; }
+  .search{
+    display:flex; align-items:center; gap:9px;
+    background:var(--panel); border:1px solid var(--line);
+    padding:10px 14px; border-radius:12px; width:230px;
+    color:var(--muted-2); font-size:13px;
+  }
+  .search svg{ width:15px; height:15px; flex-shrink:0; }
+  .search input{
+    background:none; border:none; outline:none; color:var(--text);
+    font-size:13px; width:100%; font-family:inherit;
+  }
+  .search input::placeholder{ color:var(--muted-2); }
+  @media (max-width:640px){ .search{ display:none; } }
+
+  .icon-btn{
+    width:38px; height:38px; border-radius:12px;
+    background:var(--panel); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--muted);
+  }
+  .icon-btn svg{ width:16px; height:16px; }
+  .icon-btn:hover{ color:var(--text); border-color:var(--muted-2); }
+
+  .profile{
+    display:flex; align-items:center; gap:10px;
+    background:var(--panel); border:1px solid var(--line);
+    padding:7px 14px 7px 7px; border-radius:12px;
+  }
+  .avatar{
+    width:28px; height:28px; border-radius:9px;
+    background:linear-gradient(135deg, var(--gold), #B8842E);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk'; font-weight:700; font-size:11px; color:#0A0B0D;
+  }
+  .profile span{ font-size:13px; font-weight:500; }
+
+  /* ================= Stat cards ================= */
+  .cards{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px; margin-bottom:20px;
+  }
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px; position:relative; overflow:hidden;
+  }
+  .card-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+  .card-icon{
+    width:34px; height:34px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card-icon svg{ width:16px; height:16px; }
+  .card h4{ color:var(--muted); font-weight:500; font-size:12.5px; margin-bottom:9px; }
+  .card h2{ font-family:'Space Grotesk'; font-size:27px; font-weight:600; letter-spacing:-0.01em; }
+  .card .delta{
+    display:inline-flex; align-items:center; gap:4px; margin-top:9px;
+    font-size:12px; font-weight:600; font-family:'IBM Plex Mono';
+  }
+  .card .delta svg{ width:11px; height:11px; }
+  .green{ color:var(--gain); }
+  .red{ color:var(--loss); }
+
+  /* ================= Grid: chart + activity ================= */
+  .grid{ display:grid; grid-template-columns:2fr 1fr; gap:16px; }
+  @media (max-width:980px){ .grid{ grid-template-columns:1fr; } }
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:24px;
+  }
+  .panel-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+  .panel-head h3{ font-family:'Space Grotesk'; font-size:16px; font-weight:600; }
+  .panel-head .view-all{ font-size:12px; color:var(--muted); }
+  .panel-head .view-all:hover{ color:var(--gold); }
+
+  .range-tabs{ display:flex; gap:2px; margin-top:14px; }
+  .range-tab{
+    border:none; background:none; padding:6px 11px; border-radius:8px;
+    font-size:11.5px; font-family:'IBM Plex Mono'; color:var(--muted); cursor:pointer;
+  }
+  .range-tab.active{ background:var(--panel-2); color:var(--gold); }
+  .range-tab:hover:not(.active){ color:var(--text); }
+
+  .chart-figure{ margin-top:20px; }
+  #chart{ width:100%; height:220px; display:block; }
+  .chart-axis{
+    display:flex; justify-content:space-between; margin-top:8px;
+    font-size:10.5px; color:var(--muted-2); font-family:'IBM Plex Mono';
+  }
+
+  /* ================= Activity ================= */
+  .activity-list{ list-style:none; margin-top:16px; display:flex; flex-direction:column; }
+  .activity-list li{
+    display:flex; align-items:center; gap:12px;
+    padding:13px 0; border-top:1px solid var(--line);
+  }
+  .activity-list li:first-child{ border-top:none; padding-top:6px; }
+  .a-icon{
+    width:36px; height:36px; border-radius:10px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .a-icon svg{ width:16px; height:16px; }
+  .a-body{ flex:1; min-width:0; }
+  .a-title{ font-size:13.5px; font-weight:500; }
+  .a-time{ font-size:11px; color:var(--muted-2); margin-top:2px; }
+  .a-amount{ font-family:'IBM Plex Mono'; font-size:13px; font-weight:600; white-space:nowrap; }
+
+  footer{
+    margin-left:246px; padding:26px 40px 40px; max-width:1240px;
+    display:flex; justify-content:space-between; color:var(--muted-2); font-size:11.5px;
+    flex-wrap:wrap; gap:8px;
+  }
+
+  @media (max-width:900px){
+    .sidebar{ position:relative; width:100%; height:auto; padding:18px 20px; }
+    .sidebar-foot{ display:none; }
+    .menu{ flex-direction:row; flex-wrap:wrap; }
+    .menu-label{ display:none; }
+    .menu a::before{ display:none; }
+    .main, footer{ margin-left:0; padding:26px 20px 50px; }
+  }
+  @media (prefers-reduced-motion: reduce){ .logo-mark .dot::after{ animation:none; } }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 48 48" fill="none">
+        <path d="M14.4,12.5 A15,15 0 0,1 38.5,27.9" stroke="#F3F4F5" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M14.4,35.5 A15,15 0 0,0 38.5,20.1" stroke="#F3F4F5" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M14.4,15.5 L14.4,32.5 Q14.4,35.5 16.95,33.92 L30.45,25.58 Q33,24 30.45,22.42 L16.95,14.08 Q14.4,12.5 14.4,15.5 Z" fill="#F3F4F5"/>
+      </svg>
+      <span class="dot"></span>
+    </div>
+    <div>
+      <h2>OREGO</h2>
+      <div class="sub">Portfolio</div>
+    </div>
+  </div>
+
+  <nav class="menu">
+    <div class="menu-label">Overview</div>
+    <a href="#" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
+    </a>
+    <a href="orego-portfolio.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 7v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>
+      Portfolio
+    </a>
+    <a href="orego-market.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>
+      Market
+    </a>
+    <div class="menu-label">Manage</div>
+    <a href="orego-portfolio.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      Assets
+    </a>
+    <a href="#" id="nav-transactions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l6 6v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v6h6"/></svg>
+      Transactions
+    </a>
+    <a href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+      Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-foot">
+    <div class="plan-card">
+      <strong>Pro Plan</strong>
+      Real-time data &amp; unlimited watchlists
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-heading">
+      <div class="eyebrow">Overview</div>
+      <h1>Dashboard</h1>
+      <p>Markets close in 3h 42m · Data delayed 15 min</p>
+    </div>
+    <div class="topbar-actions">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search assets..." aria-label="Search assets">
+      </div>
+      <a href="orego-market.html" class="icon-btn" title="Trade" aria-label="Go to market" style="display:flex; align-items:center; justify-content:center; text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </a>
+      <button class="icon-btn" title="Notifications" aria-label="View notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <div class="profile">
+        <div class="avatar">RA</div>
+        <span>Admin</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-top">
+        <div class="card-icon" style="background:var(--gold-soft); color:var(--gold);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+      </div>
+      <h4>Total Portfolio</h4>
+      <h2 class="num" id="card-total">$182,540</h2>
+      <span class="delta green" id="card-total-delta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+        Live from your simulated account
+      </span>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-icon" style="background:var(--gain-soft); color:var(--gain);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>
+        </div>
+      </div>
+      <h4>Buying Power</h4>
+      <h2 class="num" id="card-bp">$0</h2>
+      <span class="delta" style="color:var(--muted);">Available to trade</span>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(139,145,152,0.14); color:var(--muted);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </div>
+      </div>
+      <h4>Assets Held</h4>
+      <h2 class="num" id="card-assets">0</h2>
+      <span class="delta" style="color:var(--muted);" id="card-assets-sub">across your holdings</span>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-icon" style="background:var(--gold-soft); color:var(--gold);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-4 4"/></svg>
+        </div>
+      </div>
+      <h4>Holdings Value</h4>
+      <h2 class="num" id="card-hv">$0</h2>
+      <span class="delta" style="color:var(--muted);">Market value of positions</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Portfolio Performance</h3>
+        <a class="view-all" href="#">Export &rarr;</a>
+      </div>
+      <div class="range-tabs">
+        <button class="range-tab" data-range="1D">1D</button>
+        <button class="range-tab" data-range="1W">1W</button>
+        <button class="range-tab active" data-range="1M">1M</button>
+        <button class="range-tab" data-range="3M">3M</button>
+        <button class="range-tab" data-range="1Y">1Y</button>
+        <button class="range-tab" data-range="All">All</button>
+      </div>
+      <div class="chart-figure">
+        <svg id="chart" viewBox="0 0 640 220" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#39D98A" stop-opacity="0.30"/>
+              <stop offset="100%" stop-color="#39D98A" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#E8B84B"/>
+              <stop offset="100%" stop-color="#39D98A"/>
+            </linearGradient>
+          </defs>
+          <g stroke="#1B1E24" stroke-width="1">
+            <line x1="0" y1="20" x2="640" y2="20"/>
+            <line x1="0" y1="75" x2="640" y2="75"/>
+            <line x1="0" y1="130" x2="640" y2="130"/>
+            <line x1="0" y1="185" x2="640" y2="185"/>
+          </g>
+          <path id="chart-fill" d="M0,150 L80,158 L160,120 L240,135 L320,90 L400,105 L480,55 L560,68 L640,20 L640,220 L0,220 Z" fill="url(#fill)"/>
+          <path id="chart-line" d="M0,150 L80,158 L160,120 L240,135 L320,90 L400,105 L480,55 L560,68 L640,20"
+                fill="none" stroke="url(#stroke)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle id="chart-dot" cx="640" cy="20" r="5" fill="#39D98A"/>
+        </svg>
+        <div class="chart-axis" id="chart-axis">
+          <span>Jul 08</span><span>Jul 15</span><span>Jul 22</span><span>Jul 29</span><span>Aug 08</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Recent Activity</h3>
+        <a class="view-all" href="#">View all &rarr;</a>
+      </div>
+      <ul class="activity-list" id="activity-list"></ul>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>&copy; 2026 Orego. Not investment advice.</span>
+  <span>Investing involves risk, including possible loss of principal.</span>
+</footer>
+
+<script src="orego-engine.js"></script>
+<script>
+  const oState = OregoEngine.getState();
+  const oTotal = OregoEngine.portfolioValue(oState);
+  let oHoldingsValue = 0;
+  const oSymbols = Object.keys(oState.holdings);
+  oSymbols.forEach(sym=>{
+    const a = OregoEngine.getAsset(sym);
+    if(a) oHoldingsValue += a.price * oState.holdings[sym].qty;
+  });
+
+  document.getElementById('card-total').textContent = OregoEngine.formatMoney(oTotal);
+  document.getElementById('card-bp').textContent = OregoEngine.formatMoney(oState.buyingPower);
+  document.getElementById('card-assets').textContent = oSymbols.length;
+  document.getElementById('card-hv').textContent = OregoEngine.formatMoney(oHoldingsValue);
+  document.getElementById('nav-transactions').setAttribute('href', 'orego-portfolio.html');
+
+  const activity = oState.transactions.slice(0, 5).map(t=>{
+    const pos = t.side === 'sell';
+    return {
+      title: `${t.symbol} ${t.side === 'buy' ? 'Purchase' : 'Sell'}`,
+      time: OregoEngine.timeAgo(t.time),
+      amount: OregoEngine.formatMoney(t.price * t.qty),
+      pos,
+      icon: t.side === 'buy' ? 'buy' : 'sell',
+    };
+  });
+
+  const icons = {
+    buy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>',
+    sell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>',
+    deposit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M12 11v5m-2.5-2.5h5"/></svg>',
+  };
+
+  const list = document.getElementById('activity-list');
+  if(activity.length === 0){
+    list.innerHTML = `<li style="border-top:none; padding-top:6px; color:var(--muted); font-size:13px;">No trades yet. <a href="orego-market.html" style="color:var(--gold);">Place your first trade →</a></li>`;
+  } else {
+    activity.forEach(a => {
+      const li = document.createElement('li');
+      const color = a.pos ? 'var(--gain)' : 'var(--loss)';
+      const soft = a.pos ? 'var(--gain-soft)' : 'var(--loss-soft)';
+      li.innerHTML = `
+        <div class="a-icon" style="background:${soft}; color:${color};">${icons[a.icon]}</div>
+        <div class="a-body">
+          <div class="a-title">${a.title}</div>
+          <div class="a-time">${a.time}</div>
+        </div>
+        <div class="a-amount ${a.pos ? 'green' : 'red'}">${a.pos?'+':'-'}${a.amount}</div>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  const chartData = {
+    '1D':  { ys:[120,128,110,132,105,118,95,108,88],  axis:['9:00','11:00','13:00','15:00','17:00'] },
+    '1W':  { ys:[150,140,160,120,135,110,125,90,100], axis:['Aug 02','Aug 03','Aug 05','Aug 06','Aug 08'] },
+    '1M':  { ys:[150,158,120,135,90,105,55,68,20],     axis:['Jul 08','Jul 15','Jul 22','Jul 29','Aug 08'] },
+    '3M':  { ys:[180,160,172,130,142,100,120,72,90],   axis:['May 08','Jun 08','Jul 08','Jul 25','Aug 08'] },
+    '1Y':  { ys:[190,172,150,160,110,132,80,60,40],    axis:['Aug 25','Nov 25','Feb 26','May 26','Aug 26'] },
+    'All': { ys:[200,180,162,140,150,100,90,58,30],    axis:['2022','2023','2024','2025','2026'] },
+  };
+  const xs = [0,80,160,240,320,400,480,560,640];
+
+  function renderChart(range){
+    const { ys, axis } = chartData[range];
+    const linePts = xs.map((x,i)=>`${x},${ys[i]}`).join(' L');
+    const linePath = `M${linePts}`;
+    const fillPath = `${linePath} L640,220 L0,220 Z`;
+    document.getElementById('chart-line').setAttribute('d', linePath);
+    document.getElementById('chart-fill').setAttribute('d', fillPath);
+    document.getElementById('chart-dot').setAttribute('cx', xs[xs.length-1]);
+    document.getElementById('chart-dot').setAttribute('cy', ys[ys.length-1]);
+    document.getElementById('chart-axis').innerHTML = axis.map(a=>`<span>${a}</span>`).join('');
+  }
+
+  document.querySelectorAll('.range-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.range-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      renderChart(tab.dataset.range);
+    });
+  });
+</script>
+</body>
+</html>

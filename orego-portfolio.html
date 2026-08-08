@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orego — Portfolio</title>
+<meta name="theme-color" content="#0A0B0D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0B0D; --panel:#111318; --panel-2:#171A20; --line:#22262D;
+    --text:#F3F4F5; --muted:#8A9099; --muted-2:#585E67;
+    --gold:#E8B84B; --gold-soft:rgba(232,184,75,0.12);
+    --gain:#39D98A; --gain-soft:rgba(57,217,138,0.12);
+    --loss:#FF6161; --loss-soft:rgba(255,97,97,0.12);
+    --radius:18px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    font-family:'Inter', sans-serif;
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(232,184,75,0.06), transparent 60%), var(--ink);
+    color:var(--text); -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  a{ color:inherit; text-decoration:none; }
+  .num{ font-family:'IBM Plex Mono', monospace; font-variant-numeric:tabular-nums; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+  .green{ color:var(--gain); } .red{ color:var(--loss); }
+
+  .sidebar{ position:fixed; left:0; top:0; width:246px; height:100vh; background:var(--panel); border-right:1px solid var(--line); padding:28px 20px; display:flex; flex-direction:column; z-index:20; }
+  .logo{ display:flex; align-items:center; gap:12px; margin-bottom:38px; padding:0 6px; }
+  .logo-mark{ width:32px; height:32px; }
+  .logo-mark svg{ width:100%; height:100%; display:block; }
+  .logo h2{ font-family:'Space Grotesk'; font-size:19px; font-weight:700; }
+  .logo .sub{ font-size:10.5px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+  .menu{ display:flex; flex-direction:column; gap:3px; }
+  .menu-label{ font-size:10.5px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.09em; padding:0 14px; margin:18px 0 8px; }
+  .menu a{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:14px; font-weight:500; padding:10px 14px; border-radius:11px; position:relative; }
+  .menu a svg{ width:17px; height:17px; flex-shrink:0; }
+  .menu a:hover{ background:var(--panel-2); color:var(--text); }
+  .menu a.active{ background:var(--gold-soft); color:var(--gold); }
+  .menu a.active::before{ content:''; position:absolute; left:-20px; top:50%; transform:translateY(-50%); width:3px; height:18px; border-radius:0 3px 3px 0; background:var(--gold); }
+  .sidebar-foot{ margin-top:auto; padding-top:20px; border-top:1px solid var(--line); }
+  .plan-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:14px; padding:14px; font-size:12px; color:var(--muted); }
+  .plan-card strong{ display:block; color:var(--text); font-size:13px; margin-bottom:3px; }
+
+  .main{ margin-left:246px; padding:34px 40px 60px; max-width:1240px; }
+  .topbar-heading .eyebrow{ font-size:11px; color:var(--gold); letter-spacing:.1em; text-transform:uppercase; font-weight:600; margin-bottom:6px; }
+  .topbar-heading h1{ font-family:'Space Grotesk'; font-size:24px; font-weight:600; }
+  .topbar-heading p{ font-size:13px; color:var(--muted); margin-top:5px; }
+
+  .cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin:26px 0 24px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px; }
+  .card h4{ color:var(--muted); font-weight:500; font-size:12.5px; margin-bottom:9px; }
+  .card h2{ font-family:'Space Grotesk'; font-size:27px; font-weight:600; }
+
+  .table-wrap{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .h-row{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:12px; padding:16px 22px; border-top:1px solid var(--line); align-items:center; }
+  .h-row:first-child{ border-top:none; color:var(--muted-2); font-size:11px; text-transform:uppercase; letter-spacing:.06em; padding:14px 22px; }
+  .h-name{ font-size:13.5px; font-weight:600; }
+  .h-sub{ font-size:11.5px; color:var(--muted-2); margin-top:1px; }
+  .h-cell{ font-size:13px; }
+  .empty{ padding:50px 22px; text-align:center; color:var(--muted); }
+  .empty a{ color:var(--gold); font-weight:600; }
+  @media (max-width:760px){ .h-row{ grid-template-columns:2fr 1fr 1fr; } .h-row span:nth-child(4), .h-row span:nth-child(5){ display:none; } }
+  @media (max-width:900px){
+    .sidebar{ position:relative; width:100%; height:auto; padding:18px 20px; }
+    .sidebar-foot{ display:none; }
+    .menu{ flex-direction:row; flex-wrap:wrap; }
+    .menu-label{ display:none; }
+    .main{ margin-left:0; padding:26px 20px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 48 48" fill="none">
+        <path d="M14.4,12.5 A15,15 0 0,1 38.5,27.9" stroke="#F3F4F5" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M14.4,35.5 A15,15 0 0,0 38.5,20.1" stroke="#F3F4F5" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M14.4,15.5 L14.4,32.5 Q14.4,35.5 16.95,33.92 L30.45,25.58 Q33,24 30.45,22.42 L16.95,14.08 Q14.4,12.5 14.4,15.5 Z" fill="#F3F4F5"/>
+      </svg>
+    </div>
+    <div><h2>OREGO</h2><div class="sub">Portfolio</div></div>
+  </div>
+  <nav class="menu">
+    <div class="menu-label">Overview</div>
+    <a href="orego-refined.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
+    <a href="orego-portfolio.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 7v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>Portfolio</a>
+    <a href="orego-market.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>Market</a>
+  </nav>
+  <div class="sidebar-foot">
+    <div class="plan-card"><strong>Demo Mode</strong>Simulated trades — no real money moves.</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar-heading">
+    <div class="eyebrow">Overview</div>
+    <h1>Your Portfolio</h1>
+    <p>Holdings and buying power, updated after every simulated trade.</p>
+  </div>
+
+  <div class="cards">
+    <div class="card"><h4>Total Value</h4><h2 class="num" id="total-value">—</h2></div>
+    <div class="card"><h4>Buying Power</h4><h2 class="num" id="bp">—</h2></div>
+    <div class="card"><h4>Holdings Value</h4><h2 class="num" id="hv">—</h2></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="h-row">
+      <span>Asset</span><span>Qty</span><span>Avg Cost</span><span>Price</span><span>Value</span>
+    </div>
+    <div id="holdings-list"></div>
+  </div>
+</div>
+
+<script src="orego-engine.js"></script>
+<script>
+  const state = OregoEngine.getState();
+  const total = OregoEngine.portfolioValue(state);
+  let holdingsValue = 0;
+
+  document.getElementById('total-value').textContent = OregoEngine.formatMoney(total);
+  document.getElementById('bp').textContent = OregoEngine.formatMoney(state.buyingPower);
+
+  const symbols = Object.keys(state.holdings);
+  const list = document.getElementById('holdings-list');
+
+  if(symbols.length === 0){
+    list.innerHTML = `<div class="empty">You don't hold any assets yet. <a href="orego-market.html">Browse the market →</a></div>`;
+  } else {
+    list.innerHTML = symbols.map(sym=>{
+      const h = state.holdings[sym];
+      const asset = OregoEngine.getAsset(sym);
+      const value = asset.price * h.qty;
+      holdingsValue += value;
+      const gain = value - (h.avgCost * h.qty);
+      const gainPct = (gain / (h.avgCost * h.qty)) * 100;
+      return `
+        <a class="h-row" href="orego-trade.html?symbol=${sym}" style="text-decoration:none; cursor:pointer;">
+          <div>
+            <div class="h-name">${asset.name}</div>
+            <div class="h-sub">${sym} · ${asset.class}</div>
+          </div>
+          <span class="h-cell num">${OregoEngine.formatQty(h.qty)}</span>
+          <span class="h-cell num">${OregoEngine.formatMoney(h.avgCost)}</span>
+          <span class="h-cell num">${OregoEngine.formatMoney(asset.price)}</span>
+          <span class="h-cell num ${gain>=0?'green':'red'}">${OregoEngine.formatMoney(value)}<br><span style="font-size:11px;">${gain>=0?'+':''}${gainPct.toFixed(1)}%</span></span>
+        </a>`;
+    }).join('');
+  }
+
+  document.getElementById('hv').textContent = OregoEngine.formatMoney(holdingsValue);
+</script>
+</body>
+</html>
