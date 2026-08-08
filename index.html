@@ -93,9 +93,9 @@
     padding:16px 32px;
   }
   .brand{ display:flex; align-items:center; gap:11px; }
-  .logo-mark{ width:30px; height:30px; }
+  .logo-mark{ width:38px; height:38px; }
+  .brand-name{ font-family:'Space Grotesk'; font-weight:700; font-size:23px; letter-spacing:-0.01em; }
   .logo-mark svg{ width:100%; height:100%; }
-  .brand-name{ font-family:'Space Grotesk'; font-weight:700; font-size:19px; letter-spacing:-0.01em; }
 
   .nav-links{ display:flex; align-items:center; gap:34px; }
   .nav-links a{ font-size:14px; color:var(--muted); font-weight:500; transition:color .15s ease; }
@@ -363,6 +363,20 @@
     color:var(--muted-2); font-size:11.5px; line-height:1.6;
   }
   .foot-bottom .disclaimer{ max-width:640px; }
+  /* --------- scroll reveal --------- */
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s cubic-bezier(.16,.8,.3,1), transform .7s cubic-bezier(.16,.8,.3,1); }
+  .reveal.in-view{ opacity:1; transform:translateY(0); }
+  .reveal-stagger.in-view > *{ opacity:1; transform:translateY(0); }
+  .reveal-stagger > *{ opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.16,.8,.3,1), transform .6s cubic-bezier(.16,.8,.3,1); }
+  .reveal-stagger.in-view > *:nth-child(1){ transition-delay:.05s; }
+  .reveal-stagger.in-view > *:nth-child(2){ transition-delay:.12s; }
+  .reveal-stagger.in-view > *:nth-child(3){ transition-delay:.19s; }
+  .reveal-stagger.in-view > *:nth-child(4){ transition-delay:.26s; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .reveal, .reveal-stagger > *{ opacity:1 !important; transform:none !important; transition:none !important; }
+  }
 </style>
 </head>
 <body>
@@ -470,7 +484,7 @@
   </div>
 
   <!-- ================= Trust ================= -->
-  <section class="trust">
+  <section class="trust reveal">
     <div class="wrap trust-row">
       <div class="item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5Z"/></svg>
@@ -492,7 +506,7 @@
   </section>
 
   <!-- ================= Features ================= -->
-  <section class="features" id="features">
+  <section class="features reveal" id="features">
     <div class="wrap">
       <div class="sec-head">
         <div class="eyebrow">Features</div>
@@ -533,7 +547,7 @@
   </section>
 
   <!-- ================= Stats band ================= -->
-  <section class="stats-band">
+  <section class="stats-band reveal">
     <div class="wrap stats-grid">
       <div>
         <div class="n num">Real-Time</div>
@@ -555,7 +569,7 @@
   </section>
 
   <!-- ================= How it works ================= -->
-  <section class="how" id="how-it-works">
+  <section class="how reveal" id="how-it-works">
     <div class="wrap">
       <div class="sec-head center" style="margin-left:auto;margin-right:auto;">
         <div class="eyebrow" style="justify-content:center;">How It Works</div>
@@ -582,7 +596,7 @@
   </section>
 
   <!-- ================= Pricing ================= -->
-  <section class="pricing" id="pricing">
+  <section class="pricing reveal" id="pricing">
     <div class="wrap">
       <div class="sec-head center" style="margin-left:auto;margin-right:auto;">
         <div class="eyebrow" style="justify-content:center;">Pricing</div>
@@ -618,7 +632,7 @@
   </section>
 
   <!-- ================= CTA band ================= -->
-  <section class="cta-band" id="security">
+  <section class="cta-band reveal" id="security">
     <div class="wrap">
       <div class="cta-box">
         <h2>Your money, watched, protected, and put to work.</h2>
@@ -695,6 +709,20 @@
   document.querySelectorAll('a[href="orego-refined.html"]').forEach(a=>{
     a.addEventListener('click', ()=> OregoEngine.setLoggedIn());
   });
+
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const revealObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.15, rootMargin:'0px 0px -60px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in-view'));
+  }
 </script>
 <script>
   const symbols = [
