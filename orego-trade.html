@@ -161,6 +161,11 @@
 <script>
   const params = new URLSearchParams(window.location.search);
   const symbol = (params.get('symbol') || 'AAPL').toUpperCase();
+
+  async function init(){
+  if(symbol === 'BTC' || symbol === 'ETH' || symbol === 'BNB' || symbol === 'SOL'){
+    await OregoEngine.fetchLiveCryptoPrices();
+  }
   const asset = OregoEngine.getAsset(symbol);
 
   if(!asset){
@@ -299,6 +304,9 @@
     refreshStats();
     refreshSummary();
   }
+  }
+
+  init();
 </script>
 </body>
 </html>

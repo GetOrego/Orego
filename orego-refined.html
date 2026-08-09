@@ -462,6 +462,7 @@
 
 <script src="orego-engine.js"></script>
 <script>
+  function renderDashboardCards(){
   const oState = OregoEngine.getState();
   const oTotal = OregoEngine.portfolioValue(oState);
   let oHoldingsValue = 0;
@@ -475,8 +476,12 @@
   document.getElementById('card-bp').textContent = OregoEngine.formatMoney(oState.buyingPower);
   document.getElementById('card-assets').textContent = oSymbols.length;
   document.getElementById('card-hv').textContent = OregoEngine.formatMoney(oHoldingsValue);
+  }
+  renderDashboardCards();
+  OregoEngine.fetchLiveCryptoPrices().then(r => { if(r.ok) renderDashboardCards(); });
 
-  const activity = oState.transactions.slice(0, 5).map(t=>{
+  const oState2 = OregoEngine.getState();
+  const activity = oState2.transactions.slice(0, 5).map(t=>{
     const pos = t.side === 'sell';
     return {
       title: `${t.symbol} ${t.side === 'buy' ? 'Purchase' : 'Sell'}`,

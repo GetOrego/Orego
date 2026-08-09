@@ -138,7 +138,7 @@
     <div class="topbar-heading">
       <div class="eyebrow">Market</div>
       <h1>Browse assets</h1>
-      <p>Prices are simulated for demo purposes.</p>
+      <p>Stocks &amp; ETFs are simulated. Crypto prices are <span id="live-indicator" style="color:var(--muted);">loading live data…</span></p>
     </div>
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -203,6 +203,19 @@
   });
 
   render();
+
+  // Fetch real, live crypto prices from CoinGecko and re-render once ready
+  OregoEngine.fetchLiveCryptoPrices().then(result=>{
+    const indicator = document.getElementById('live-indicator');
+    if(result.ok){
+      indicator.textContent = 'live (via CoinGecko)';
+      indicator.style.color = 'var(--gain)';
+      render();
+    } else {
+      indicator.textContent = 'unavailable right now — showing last known prices';
+      indicator.style.color = 'var(--muted)';
+    }
+  });
 </script>
 </body>
 </html>

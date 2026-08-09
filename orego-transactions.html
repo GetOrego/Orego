@@ -116,6 +116,7 @@
 
 <script src="orego-engine.js"></script>
 <script>
+  function renderTx(){
   const state = OregoEngine.getState();
   const list = document.getElementById('tx-list');
 
@@ -146,6 +147,10 @@
         </a>`;
     }).join('');
   }
+  }
+
+  renderTx();
+  OregoEngine.fetchLiveCryptoPrices().then(r => { if(r.ok) renderTx(); });
 </script>
 </body>
 </html>

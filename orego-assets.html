@@ -123,6 +123,7 @@
 
 <script src="orego-engine.js"></script>
 <script>
+  function renderAssets(){
   const state = OregoEngine.getState();
   const colors = { Stock:'var(--blue)', ETF:'var(--gold)', Crypto:'var(--gain)', Cash:'var(--muted)' };
   const symbols = Object.keys(state.holdings);
@@ -188,6 +189,10 @@
         </div>`;
     }).join('');
   }
+  }
+
+  renderAssets();
+  OregoEngine.fetchLiveCryptoPrices().then(r => { if(r.ok) renderAssets(); });
 </script>
 </body>
 </html>

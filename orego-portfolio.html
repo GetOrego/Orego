@@ -131,6 +131,7 @@
 
 <script src="orego-engine.js"></script>
 <script>
+  function renderPortfolio(){
   const state = OregoEngine.getState();
   const total = OregoEngine.portfolioValue(state);
   let holdingsValue = 0;
@@ -166,6 +167,10 @@
   }
 
   document.getElementById('hv').textContent = OregoEngine.formatMoney(holdingsValue);
+  }
+
+  renderPortfolio();
+  OregoEngine.fetchLiveCryptoPrices().then(r => { if(r.ok) renderPortfolio(); });
 </script>
 </body>
 </html>
