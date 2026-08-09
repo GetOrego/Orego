@@ -20,6 +20,36 @@ const OREGO_ASSETS = [
 const OregoEngine = (() => {
   const KEY = 'orego_state';
 
+  // Maps our symbols to CoinGecko's coin IDs
+  const COINGECKO_IDS = { BTC:'bitcoin', ETH:'ethereum', BNB:'binancecoin', SOL:'solana' };
+  let livePricesFetchedAt = null;
+
+  async function fetchLiveCryptoPrices(){
+    try{
+      const ids = Object.values(COINGECKO_IDS).join(',');
+      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('CoinGecko request failed: ' + res.status);
+      const data = await res.json();
+
+      Object.entries(COINGECKO_IDS).forEach(([symbol, geckoId])=>{
+        const info = data[geckoId];
+        if(!info) return;
+        const asset = getAsset(symbol);
+        if(asset){
+          asset.price = info.usd;
+          asset.change = info.usd_24h_change || 0;
+        }
+      });
+      livePricesFetchedAt = Date.now();
+      return { ok:true, at: livePricesFetchedAt };
+    }catch(e){
+      return { ok:false, reason: e.message };
+    }
+  }
+
+  function getLivePricesFetchedAt(){ return livePricesFetchedAt; }
+
   function seedState(){
     return {
       buyingPower: 24500,
@@ -130,5 +160,5 @@ const OregoEngine = (() => {
     return days + 'd ago';
   }
 
-  return { getState, saveState, getAsset, buy, sell, portfolioValue, formatMoney, formatQty, timeAgo, setLoggedIn, isLoggedIn, seedState };
+  return { getState, saveState, getAsset, buy, sell, portfolioValue, formatMoney, formatQty, timeAgo, setLoggedIn, isLoggedIn, seedState, fetchLiveCryptoPrices, getLivePricesFetchedAt };
 })();
