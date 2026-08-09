@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orego — Transactions</title>
+<title>Orego — Assets</title>
 <meta name="theme-color" content="#0A0B0D">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,6 +14,7 @@
     --gold:#E8B84B; --gold-soft:rgba(232,184,75,0.12);
     --gain:#39D98A; --gain-soft:rgba(57,217,138,0.12);
     --loss:#FF6161; --loss-soft:rgba(255,97,97,0.12);
+    --blue:#5D8CFF; --blue-soft:rgba(93,140,255,0.12);
     --radius:18px;
   }
   *{ margin:0; padding:0; box-sizing:border-box; }
@@ -37,7 +38,7 @@
   .menu{ display:flex; flex-direction:column; gap:3px; border-top:1px solid var(--line); padding-top:12px; margin-top:2px; }
   .menu-label{ font-size:10.5px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.09em; padding:0 14px; margin:14px 0 8px; }
   .menu-label:first-child{ margin-top:0; }
-  .menu a{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:14px; font-weight:500; padding:10px 14px; border-radius:11px; position:relative; }
+  .menu a{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:14px; font-weight:500; padding:10px 14px; border-radius:11px; }
   .menu a svg{ width:17px; height:17px; flex-shrink:0; }
   .menu a:hover{ background:var(--panel-2); color:var(--text); }
   .menu a.active{ background:var(--gold-soft); color:var(--gold); }
@@ -47,22 +48,27 @@
   h1{ font-family:'Space Grotesk'; font-size:24px; font-weight:600; }
   .lead{ font-size:13px; color:var(--muted); margin-top:5px; margin-bottom:28px; }
 
-  .table-wrap{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
-  .t-row{ display:grid; grid-template-columns:1.6fr 0.8fr 1fr 1fr 1fr; gap:12px; padding:16px 22px; border-top:1px solid var(--line); align-items:center; }
-  .t-row:first-child{ border-top:none; color:var(--muted-2); font-size:11px; text-transform:uppercase; letter-spacing:.06em; padding:14px 22px; }
-  .t-asset{ display:flex; align-items:center; gap:12px; }
-  .t-icon{ width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .t-icon svg{ width:14px; height:14px; }
-  .t-name{ font-size:13.5px; font-weight:600; }
-  .t-sub{ font-size:11.5px; color:var(--muted-2); margin-top:1px; }
-  .t-side{ font-size:12px; font-weight:600; padding:4px 10px; border-radius:7px; width:fit-content; text-transform:capitalize; }
-  .empty{ padding:50px 22px; text-align:center; color:var(--muted); }
-  .empty a{ color:var(--gold); font-weight:600; }
+  .panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px; margin-bottom:18px; }
+  .panel h3{ font-family:'Space Grotesk'; font-size:15px; font-weight:600; margin-bottom:18px; }
 
-  @media (max-width:760px){
-    .t-row{ grid-template-columns:1.6fr 0.9fr 1fr; gap:8px; padding:14px 16px; }
-    .t-row span:nth-child(4), .t-row span:nth-child(5){ display:none; }
-  }
+  .alloc-bar{ display:flex; height:14px; border-radius:8px; overflow:hidden; margin-bottom:20px; background:var(--panel-2); }
+  .alloc-seg{ height:100%; }
+
+  .alloc-legend{ display:flex; flex-wrap:wrap; gap:20px; }
+  .alloc-item{ display:flex; align-items:center; gap:9px; }
+  .alloc-dot{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  .alloc-label{ font-size:13px; }
+  .alloc-pct{ font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--muted); margin-left:4px; }
+
+  .class-group{ margin-bottom:8px; }
+  .class-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 22px; background:var(--panel-2); font-size:12.5px; font-weight:600; }
+  .class-head .tag{ display:flex; align-items:center; gap:8px; }
+  .class-head .dot{ width:9px; height:9px; border-radius:3px; }
+  .a-row{ display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px; padding:14px 22px; border-top:1px solid var(--line); align-items:center; font-size:13.5px; }
+  .a-name{ font-weight:600; }
+  .a-sub{ font-size:11.5px; color:var(--muted-2); margin-top:1px; }
+
+  @media (max-width:760px){ .a-row{ grid-template-columns:2fr 1fr; } .a-row span:nth-child(3){ display:none; } }
   @media (max-width:900px){
     .sidebar{ position:relative; width:100%; height:auto; padding:18px 20px; }
     .menu{ flex-direction:row; flex-wrap:wrap; }
@@ -94,55 +100,91 @@
     <a href="orego-portfolio.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 7v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>Portfolio</a>
     <a href="orego-market.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>Market</a>
     <div class="menu-label">Manage</div>
-    <a href="orego-assets.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Assets</a>
-    <a href="orego-transactions.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l6 6v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v6h6"/></svg>Transactions</a>
+    <a href="orego-assets.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Assets</a>
+    <a href="orego-transactions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l6 6v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v6h6"/></svg>Transactions</a>
     <a href="orego-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Settings</a>
   </nav>
 </div>
 
 <div class="main">
   <div class="eyebrow">Manage</div>
-  <h1>Transactions</h1>
-  <p class="lead">Full history of your simulated buy and sell orders.</p>
+  <h1>Assets</h1>
+  <p class="lead">How your simulated portfolio is allocated across asset classes.</p>
 
-  <div class="table-wrap">
-    <div class="t-row">
-      <span>Asset</span><span>Side</span><span>Qty</span><span>Price</span><span>Total</span>
-    </div>
-    <div id="tx-list"></div>
+  <div class="panel">
+    <h3>Allocation</h3>
+    <div class="alloc-bar" id="alloc-bar"></div>
+    <div class="alloc-legend" id="alloc-legend"></div>
   </div>
+
+  <div id="class-groups"></div>
 </div>
 
 <script src="orego-engine.js"></script>
 <script>
   const state = OregoEngine.getState();
-  const list = document.getElementById('tx-list');
+  const colors = { Stock:'var(--blue)', ETF:'var(--gold)', Crypto:'var(--gain)', Cash:'var(--muted)' };
+  const symbols = Object.keys(state.holdings);
 
-  if(state.transactions.length === 0){
-    list.innerHTML = `<div class="empty">No transactions yet. <a href="orego-market.html">Place your first trade →</a></div>`;
+  const groups = {};
+  let holdingsTotal = 0;
+  symbols.forEach(sym=>{
+    const h = state.holdings[sym];
+    const asset = OregoEngine.getAsset(sym);
+    if(!asset) return;
+    const value = asset.price * h.qty;
+    holdingsTotal += value;
+    if(!groups[asset.class]) groups[asset.class] = { value:0, items:[] };
+    groups[asset.class].value += value;
+    groups[asset.class].items.push({ sym, asset, h, value });
+  });
+
+  const grandTotal = holdingsTotal + state.buyingPower;
+
+  // Allocation bar + legend (includes cash/buying power)
+  const segments = Object.keys(groups).map(cls => ({ cls, value: groups[cls].value }));
+  segments.push({ cls:'Cash', value: state.buyingPower });
+
+  const bar = document.getElementById('alloc-bar');
+  const legend = document.getElementById('alloc-legend');
+  bar.innerHTML = segments.map(s=>{
+    const pct = grandTotal > 0 ? (s.value / grandTotal * 100) : 0;
+    return `<div class="alloc-seg" style="width:${pct}%; background:${colors[s.cls] || 'var(--muted)'};"></div>`;
+  }).join('');
+  legend.innerHTML = segments.map(s=>{
+    const pct = grandTotal > 0 ? (s.value / grandTotal * 100) : 0;
+    return `<div class="alloc-item">
+      <div class="alloc-dot" style="background:${colors[s.cls] || 'var(--muted)'};"></div>
+      <span class="alloc-label">${s.cls}</span>
+      <span class="alloc-pct">${pct.toFixed(1)}% · ${OregoEngine.formatMoney(s.value)}</span>
+    </div>`;
+  }).join('');
+
+  // Class groups with holdings
+  const container = document.getElementById('class-groups');
+  const classKeys = Object.keys(groups);
+  if(classKeys.length === 0){
+    container.innerHTML = `<div class="panel" style="text-align:center; color:var(--muted);">You don't hold any assets yet. <a href="orego-market.html" style="color:var(--gold); font-weight:600;">Browse the market →</a></div>`;
   } else {
-    list.innerHTML = state.transactions.map(t=>{
-      const asset = OregoEngine.getAsset(t.symbol);
-      const isBuy = t.side === 'buy';
-      const total = t.price * t.qty;
-      return `
-        <a class="t-row" href="orego-trade.html?symbol=${t.symbol}" style="text-decoration:none; cursor:pointer;">
-          <div class="t-asset">
-            <div class="t-icon" style="background:${isBuy?'var(--gain-soft)':'var(--loss-soft)'}; color:${isBuy?'var(--gain)':'var(--loss)'};">
-              ${isBuy
-                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>'
-                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>'}
-            </div>
-            <div>
-              <div class="t-name">${asset ? asset.name : t.symbol}</div>
-              <div class="t-sub">${t.symbol} · ${OregoEngine.timeAgo(t.time)}</div>
-            </div>
+    container.innerHTML = classKeys.map(cls=>{
+      const g = groups[cls];
+      const rows = g.items.map(item=>`
+        <a class="a-row" href="orego-trade.html?symbol=${item.sym}" style="text-decoration:none; color:inherit;">
+          <div>
+            <div class="a-name">${item.asset.name}</div>
+            <div class="a-sub">${item.sym}</div>
           </div>
-          <span class="t-side" style="background:${isBuy?'var(--gain-soft)':'var(--loss-soft)'}; color:${isBuy?'var(--gain)':'var(--loss)'};">${t.side}</span>
-          <span class="num">${OregoEngine.formatQty(t.qty)}</span>
-          <span class="num">${OregoEngine.formatMoney(t.price)}</span>
-          <span class="num" style="font-weight:600;">${OregoEngine.formatMoney(total)}</span>
-        </a>`;
+          <span class="num">${OregoEngine.formatQty(item.h.qty)}</span>
+          <span class="num">${OregoEngine.formatMoney(item.value)}</span>
+        </a>`).join('');
+      return `
+        <div class="class-group panel" style="padding:0;">
+          <div class="class-head">
+            <div class="tag"><div class="dot" style="background:${colors[cls] || 'var(--muted)'};"></div>${cls}</div>
+            <span>${OregoEngine.formatMoney(g.value)}</span>
+          </div>
+          ${rows}
+        </div>`;
     }).join('');
   }
 </script>
