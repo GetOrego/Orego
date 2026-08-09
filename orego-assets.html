@@ -192,7 +192,7 @@
   }
 
   renderAssets();
-  OregoEngine.fetchLiveCryptoPrices().then(r => { if(r.ok) renderAssets(); });
+  Promise.all([OregoEngine.fetchLiveCryptoPrices(), OregoEngine.fetchLiveStockPrices()]).then(([c,s]) => { if(c.ok || s.ok) renderAssets(); });
 </script>
 </body>
 </html>

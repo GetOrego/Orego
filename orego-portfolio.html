@@ -170,7 +170,7 @@
   }
 
   renderPortfolio();
-  OregoEngine.fetchLiveCryptoPrices().then(r => { if(r.ok) renderPortfolio(); });
+  Promise.all([OregoEngine.fetchLiveCryptoPrices(), OregoEngine.fetchLiveStockPrices()]).then(([c,s]) => { if(c.ok || s.ok) renderPortfolio(); });
 </script>
 </body>
 </html>

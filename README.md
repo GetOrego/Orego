@@ -22,7 +22,14 @@ Orego is a client-side demo of a retail investing experience: browse a market, p
 - **Wallet** — optional real Web3 integration: connect a browser wallet (e.g. MetaMask) and read live, read-only on-chain data (address, ETH balance, block height) from **Robinhood Chain** (Chain ID `4663`), Robinhood's public Layer-2 network. No funds can be moved through this app.
 - **Settings** — reset simulated demo data at any time
 
-All trading data (buying power, holdings, transaction history) is simulated and stored locally in the browser via `localStorage`. No real market data, brokerage account, or money is involved anywhere except the optional read-only Wallet page, which only *reads* public on-chain data and never signs or sends transactions.
+All trading data (buying power, holdings, transaction history) is simulated and stored locally in the browser via `localStorage`. Stock/ETF and crypto **prices** are fetched live from real market data providers (see below); no real brokerage account or money is involved anywhere except the optional read-only Wallet page, which only *reads* public on-chain data and never signs or sends transactions.
+
+### Live price data
+
+- **Crypto** (BTC, ETH, BNB, SOL) — fetched live from the [CoinGecko](https://www.coingecko.com/en/api) public API, no key required.
+- **Stocks & ETFs** (AAPL, MSFT, NVDA, TSLA, AMZN, VOO, QQQ, ARKK) — fetched live from [Twelve Data](https://twelvedata.com/) using a free-tier API key.
+
+If either provider is unreachable (rate limit, offline, etc.), Orego falls back to the last known price so the app never breaks.
 
 ---
 

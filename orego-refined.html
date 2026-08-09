@@ -478,7 +478,7 @@
   document.getElementById('card-hv').textContent = OregoEngine.formatMoney(oHoldingsValue);
   }
   renderDashboardCards();
-  OregoEngine.fetchLiveCryptoPrices().then(r => { if(r.ok) renderDashboardCards(); });
+  Promise.all([OregoEngine.fetchLiveCryptoPrices(), OregoEngine.fetchLiveStockPrices()]).then(([c,s]) => { if(c.ok || s.ok) renderDashboardCards(); });
 
   const oState2 = OregoEngine.getState();
   const activity = oState2.transactions.slice(0, 5).map(t=>{

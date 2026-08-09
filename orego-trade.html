@@ -163,8 +163,12 @@
   const symbol = (params.get('symbol') || 'AAPL').toUpperCase();
 
   async function init(){
-  if(symbol === 'BTC' || symbol === 'ETH' || symbol === 'BNB' || symbol === 'SOL'){
+  const cryptoSymbols = ['BTC','ETH','BNB','SOL'];
+  const stockSymbols = ['AAPL','MSFT','NVDA','TSLA','AMZN','VOO','QQQ','ARKK'];
+  if(cryptoSymbols.includes(symbol)){
     await OregoEngine.fetchLiveCryptoPrices();
+  } else if(stockSymbols.includes(symbol)){
+    await OregoEngine.fetchLiveStockPrices();
   }
   const asset = OregoEngine.getAsset(symbol);
 
