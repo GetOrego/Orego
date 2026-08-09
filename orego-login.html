@@ -130,11 +130,11 @@
       </form>
 
       <div class="divider">or</div>
-      <a class="btn" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" href="orego-refined.html" id="demo-link">Continue with Demo Account</a>
+      <a class="btn" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" href="orego-refined.html" id="practice-link">Continue with Practice Account</a>
 
       <p class="switch">Don't have an account? <a href="orego-signup.html">Sign up free</a></p>
     </div>
-    <p class="disclaimer-note">This is a demo interface. No real account data is created or stored.</p>
+    <p class="disclaimer-note">Trades are simulated with live prices. No real money or funded account is created.</p>
   </div>
 </main>
 
@@ -147,7 +147,7 @@
     OregoEngine.setLoggedIn();
     window.location.href = 'orego-refined.html';
   });
-  document.getElementById('demo-link').addEventListener('click', function(){
+  document.getElementById('practice-link').addEventListener('click', function(){
     OregoEngine.setLoggedIn();
   });
 </script>

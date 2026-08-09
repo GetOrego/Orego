@@ -103,12 +103,12 @@
 <div class="main">
   <div class="eyebrow">Account</div>
   <h1>Settings</h1>
-  <p class="lead">Manage your demo account and simulated trading data.</p>
+  <p class="lead">Manage your practice account and simulated trading data.</p>
 
   <div class="panel">
-    <h3>Demo Account</h3>
+    <h3>Practice Account</h3>
     <p class="sub">This is a simulated account. No real personal data is stored.</p>
-    <div class="row"><span class="label">Account type</span><span class="value">Demo</span></div>
+    <div class="row"><span class="label">Account type</span><span class="value">Practice</span></div>
     <div class="row"><span class="label">Buying power</span><span class="value" id="s-bp">—</span></div>
     <div class="row"><span class="label">Assets held</span><span class="value" id="s-assets">—</span></div>
     <div class="row"><span class="label">Total trades</span><span class="value" id="s-trades">—</span></div>
@@ -117,7 +117,7 @@
   <div class="panel">
     <h3>Reset Simulation</h3>
     <p class="sub">Clear your simulated portfolio and start fresh with $24,500 in buying power.</p>
-    <button class="btn btn-danger" id="reset-btn">Reset Demo Data</button>
+    <button class="btn btn-danger" id="reset-btn">Reset Practice Data</button>
     <div class="msg" id="reset-msg"></div>
   </div>
 </div>
@@ -134,7 +134,7 @@
     localStorage.setItem('orego_state', JSON.stringify(OregoEngine.seedState()));
     refresh();
     const msg = document.getElementById('reset-msg');
-    msg.textContent = 'Demo data reset successfully.';
+    msg.textContent = 'Practice data reset successfully.';
     setTimeout(()=> msg.textContent = '', 3000);
   });
   refresh();
