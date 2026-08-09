@@ -81,8 +81,11 @@
   .go-btn{ width:32px; height:32px; border-radius:9px; background:var(--panel-2); display:flex; align-items:center; justify-content:center; color:var(--muted); }
   .go-btn svg{ width:14px; height:14px; }
   @media (max-width:760px){
-    .asset-row{ grid-template-columns:2fr 1fr auto; }
+    .asset-row{ grid-template-columns:1.6fr 0.9fr 0.7fr auto; gap:8px; padding:14px 16px; }
     .asset-class{ display:none; }
+    .asset-icon{ width:30px; height:30px; font-size:10px; }
+    .go-btn{ width:26px; height:26px; }
+    .go-btn svg{ width:12px; height:12px; }
   }
   @media (max-width:900px){
     .sidebar{ position:relative; width:100%; height:auto; padding:18px 20px; }
@@ -151,7 +154,7 @@
 
   <div class="asset-table">
     <div class="asset-row head">
-      <span>Asset</span><span>Class</span><span>Price</span><span>24h</span><span></span>
+      <span>Asset</span><span class="asset-class">Class</span><span>Price</span><span>24h</span><span></span>
     </div>
     <div id="asset-list"></div>
   </div>
