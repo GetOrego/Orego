@@ -259,7 +259,6 @@
     .sidebar-foot{ display:none; }
     .menu{ flex-direction:row; flex-wrap:wrap; }
     .menu-label{ display:none; }
-    .back-home{ display:none !important; }
     .logo{ margin-bottom:14px; }
     .menu{ border-top:1px solid var(--line); padding-top:12px; margin-top:2px; }
     .menu a::before{ display:none; }
@@ -293,7 +292,7 @@
 
   <nav class="menu">
     <div class="menu-label">Overview</div>
-    <a href="#" class="active">
+    <a href="orego-refined.html" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
       Dashboard
     </a>
@@ -310,11 +309,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
       Assets
     </a>
-    <a href="#" id="nav-transactions">
+    <a href="orego-transactions.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l6 6v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v6h6"/></svg>
       Transactions
     </a>
-    <a href="#">
+    <a href="orego-settings.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
       Settings
     </a>
@@ -475,7 +474,6 @@
   document.getElementById('card-bp').textContent = OregoEngine.formatMoney(oState.buyingPower);
   document.getElementById('card-assets').textContent = oSymbols.length;
   document.getElementById('card-hv').textContent = OregoEngine.formatMoney(oHoldingsValue);
-  document.getElementById('nav-transactions').setAttribute('href', 'orego-portfolio.html');
 
   const activity = oState.transactions.slice(0, 5).map(t=>{
     const pos = t.side === 'sell';

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orego — Settings</title>
+<meta name="theme-color" content="#0A0B0D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0B0D; --panel:#111318; --panel-2:#171A20; --line:#22262D;
+    --text:#F3F4F5; --muted:#8A9099; --muted-2:#585E67;
+    --gold:#E8B84B; --gold-soft:rgba(232,184,75,0.12);
+    --gain:#39D98A; --gain-soft:rgba(57,217,138,0.12);
+    --loss:#FF6161; --loss-soft:rgba(255,97,97,0.12);
+    --radius:18px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    font-family:'Inter', sans-serif;
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(232,184,75,0.06), transparent 60%), var(--ink);
+    color:var(--text); -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; }
+  .num{ font-family:'IBM Plex Mono', monospace; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+
+  .sidebar{ position:fixed; left:0; top:0; width:246px; height:100vh; background:var(--panel); border-right:1px solid var(--line); padding:28px 20px; display:flex; flex-direction:column; z-index:20; }
+  .logo-mark{ width:40px; height:40px; }
+  .logo-mark svg{ width:100%; height:100%; display:block; }
+  .logo{ display:flex; align-items:center; gap:12px; margin-bottom:14px; padding:0 6px; }
+  .logo h2{ font-family:'Space Grotesk'; font-size:23px; font-weight:700; }
+  .logo .sub{ font-size:10.5px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:1px; }
+  .back-home{ display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12.5px; font-weight:500; margin-bottom:18px; padding:0 14px; }
+  .menu{ display:flex; flex-direction:column; gap:3px; border-top:1px solid var(--line); padding-top:12px; margin-top:2px; }
+  .menu-label{ font-size:10.5px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.09em; padding:0 14px; margin:14px 0 8px; }
+  .menu-label:first-child{ margin-top:0; }
+  .menu a{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:14px; font-weight:500; padding:10px 14px; border-radius:11px; }
+  .menu a svg{ width:17px; height:17px; flex-shrink:0; }
+  .menu a:hover{ background:var(--panel-2); color:var(--text); }
+  .menu a.active{ background:var(--gold-soft); color:var(--gold); }
+
+  .main{ margin-left:246px; padding:34px 40px 60px; max-width:760px; }
+  .eyebrow{ font-size:11px; color:var(--gold); letter-spacing:.1em; text-transform:uppercase; font-weight:600; margin-bottom:6px; }
+  h1{ font-family:'Space Grotesk'; font-size:24px; font-weight:600; }
+  .lead{ font-size:13px; color:var(--muted); margin-top:5px; margin-bottom:28px; }
+
+  .panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px; margin-bottom:18px; }
+  .panel h3{ font-family:'Space Grotesk'; font-size:15px; font-weight:600; margin-bottom:4px; }
+  .panel .sub{ font-size:12.5px; color:var(--muted); margin-bottom:18px; }
+  .row{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-top:1px solid var(--line); font-size:13.5px; }
+  .row:first-of-type{ border-top:none; }
+  .row .label{ color:var(--muted); }
+  .row .value{ font-family:'IBM Plex Mono'; }
+
+  .btn{ padding:11px 18px; border-radius:11px; font-size:13.5px; font-weight:600; border:1px solid var(--line); background:var(--panel-2); color:var(--text); cursor:pointer; }
+  .btn:hover{ border-color:var(--muted); }
+  .btn-danger{ color:var(--loss); border-color:var(--loss-soft); }
+  .btn-danger:hover{ background:var(--loss-soft); }
+
+  .msg{ font-size:12.5px; margin-top:12px; color:var(--gain); min-height:16px; }
+
+  @media (max-width:900px){
+    .sidebar{ position:relative; width:100%; height:auto; padding:18px 20px; }
+    .menu{ flex-direction:row; flex-wrap:wrap; }
+    .menu-label{ display:none; }
+    .main{ margin-left:0; padding:26px 20px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a class="logo" href="index.html" style="text-decoration:none; color:inherit;">
+    <div class="logo-mark">
+      <svg viewBox="0 0 48 48" fill="none">
+        <path d="M14.4,12.5 A15,15 0 0,1 38.5,27.9" stroke="#F3F4F5" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M14.4,35.5 A15,15 0 0,0 38.5,20.1" stroke="#F3F4F5" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M14.4,15.5 L14.4,32.5 Q14.4,35.5 16.95,33.92 L30.45,25.58 Q33,24 30.45,22.42 L16.95,14.08 Q14.4,12.5 14.4,15.5 Z" fill="#F3F4F5"/>
+      </svg>
+    </div>
+    <div><h2>OREGO</h2><div class="sub">Portfolio</div></div>
+  </a>
+  <a href="index.html" class="back-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 12H5M5 12l6-6M5 12l6 6"/></svg>
+    Back to Home
+  </a>
+  <nav class="menu">
+    <div class="menu-label">Overview</div>
+    <a href="orego-refined.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
+    <a href="orego-portfolio.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 7v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>Portfolio</a>
+    <a href="orego-market.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-5 4 4 8-9"/><path d="M14 7h6v6"/></svg>Market</a>
+    <div class="menu-label">Manage</div>
+    <a href="orego-portfolio.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Assets</a>
+    <a href="orego-transactions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l6 6v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v6h6"/></svg>Transactions</a>
+    <a href="orego-settings.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Settings</a>
+  </nav>
+</div>
+
+<div class="main">
+  <div class="eyebrow">Account</div>
+  <h1>Settings</h1>
+  <p class="lead">Manage your demo account and simulated trading data.</p>
+
+  <div class="panel">
+    <h3>Demo Account</h3>
+    <p class="sub">This is a simulated account. No real personal data is stored.</p>
+    <div class="row"><span class="label">Account type</span><span class="value">Demo</span></div>
+    <div class="row"><span class="label">Buying power</span><span class="value" id="s-bp">—</span></div>
+    <div class="row"><span class="label">Assets held</span><span class="value" id="s-assets">—</span></div>
+    <div class="row"><span class="label">Total trades</span><span class="value" id="s-trades">—</span></div>
+  </div>
+
+  <div class="panel">
+    <h3>Reset Simulation</h3>
+    <p class="sub">Clear your simulated portfolio and start fresh with $24,500 in buying power.</p>
+    <button class="btn btn-danger" id="reset-btn">Reset Demo Data</button>
+    <div class="msg" id="reset-msg"></div>
+  </div>
+</div>
+
+<script src="orego-engine.js"></script>
+<script>
+  function refresh(){
+    const s = OregoEngine.getState();
+    document.getElementById('s-bp').textContent = OregoEngine.formatMoney(s.buyingPower);
+    document.getElementById('s-assets').textContent = Object.keys(s.holdings).length;
+    document.getElementById('s-trades').textContent = s.transactions.length;
+  }
+  document.getElementById('reset-btn').addEventListener('click', ()=>{
+    localStorage.setItem('orego_state', JSON.stringify(OregoEngine.seedState()));
+    refresh();
+    const msg = document.getElementById('reset-msg');
+    msg.textContent = 'Demo data reset successfully.';
+    setTimeout(()=> msg.textContent = '', 3000);
+  });
+  refresh();
+</script>
+</body>
+</html>
