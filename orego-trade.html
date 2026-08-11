@@ -65,6 +65,12 @@
 
   .panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px; }
   .chart-figure svg{ width:100%; height:180px; display:block; }
+  .chart-figure{ position:relative; }
+  .chart-status{ position:absolute; top:8px; right:0; font-size:11px; color:var(--muted-2); font-family:'IBM Plex Mono'; }
+  .chart-range-tabs{ display:flex; gap:6px; margin-bottom:10px; }
+  .range-tab{ border:1px solid var(--line); background:var(--panel-2); color:var(--muted); padding:5px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; }
+  .range-tab.active{ background:var(--gold-soft); color:var(--gold); border-color:transparent; }
+  .range-tab:hover:not(.active){ color:var(--text); }
   .stat-row{ display:flex; justify-content:space-between; padding:12px 0; border-top:1px solid var(--line); font-size:13px; }
   .stat-row:first-of-type{ border-top:none; margin-top:14px; }
   .stat-row .label{ color:var(--muted); }
@@ -142,7 +148,6 @@
     <div class="menu-label">Manage</div>
     <a href="orego-assets.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Assets</a>
     <a href="orego-transactions.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l6 6v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v6h6"/></svg>Transactions</a>
-    <a href="orego-wallet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2.5"/><path d="M2 10h20"/><circle cx="17" cy="15" r="1.3" fill="currentColor" stroke="none"/></svg>Wallet</a>
     <a href="orego-settings.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Settings</a>
   </nav>
   <div class="sidebar-foot">
@@ -196,7 +201,12 @@
 
       <div class="grid">
         <div class="panel">
-          <div class="chart-figure">
+          <div class="chart-range-tabs" id="chart-range-tabs">
+            <button class="range-tab active" data-range="1D">1D</button>
+            <button class="range-tab" data-range="7D">7D</button>
+            <button class="range-tab" data-range="1M">1M</button>
+          </div>
+          <div class="chart-figure" id="chart-figure">
             <svg viewBox="0 0 500 180" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="fillg" x1="0" y1="0" x2="0" y2="1">
@@ -204,13 +214,14 @@
                   <stop offset="100%" stop-color="${asset.change>=0?'#39D98A':'#FF6161'}" stop-opacity="0"/>
                 </linearGradient>
               </defs>
-              <path d="${genPath(asset.change>=0)}" fill="url(#fillg)"/>
-              <path d="${genPath(asset.change>=0, true)}" fill="none" stroke="${asset.change>=0?'#39D98A':'#FF6161'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path id="chart-fill" d="${genPath(asset.change>=0)}" fill="url(#fillg)"/>
+              <path id="chart-line" d="${genPath(asset.change>=0, true)}" fill="none" stroke="${asset.change>=0?'#39D98A':'#FF6161'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+            <div class="chart-status" id="chart-status">Loading real price history…</div>
           </div>
           <div class="stat-row"><span class="label">Buying power available</span><span class="value" id="bp-display"></span></div>
           <div class="stat-row"><span class="label">Your holdings</span><span class="value" id="holding-display"></span></div>
-          <div class="stat-row"><span class="label">Market</span><span class="value">Simulated · delayed</span></div>
+          <div class="stat-row"><span class="label">Market</span><span class="value" id="market-status">Live</span></div>
         </div>
 
         <div class="panel trade-panel">
@@ -244,6 +255,65 @@
       const line = xs.map((x,i)=>`${x},${pts[i]}`).join(' L');
       return lineOnly ? `M${line}` : `M${line} L500,180 L0,180 Z`;
     }
+
+    function pathFromSeries(series){
+      const prices = series.map(p => p.price);
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      const range = (max - min) || 1;
+      const n = series.length;
+      const pts = prices.map((price, i) => {
+        const x = (i / (n - 1)) * 500;
+        const y = 170 - ((price - min) / range) * 150; // 10-170px, leaves padding
+        return { x, y };
+      });
+      const line = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L');
+      const up = prices[prices.length - 1] >= prices[0];
+      return {
+        linePath: `M${line}`,
+        fillPath: `M${line} L500,180 L0,180 Z`,
+        up,
+      };
+    }
+
+    let currentRange = '1D';
+    async function loadChart(range){
+      currentRange = range;
+      const statusEl = document.getElementById('chart-status');
+      statusEl.textContent = 'Loading real price history…';
+      statusEl.style.display = 'block';
+
+      const series = await OregoEngine.fetchHistoricalPrices(symbol, range);
+      const lineEl = document.getElementById('chart-line');
+      const fillEl = document.getElementById('chart-fill');
+
+      if(series && series.length > 1){
+        const { linePath, fillPath, up } = pathFromSeries(series);
+        lineEl.setAttribute('d', linePath);
+        fillEl.setAttribute('d', fillPath);
+        const color = up ? '#39D98A' : '#FF6161';
+        lineEl.setAttribute('stroke', color);
+        document.querySelectorAll('#fillg stop')[0].setAttribute('stop-color', color);
+        document.querySelectorAll('#fillg stop')[1].setAttribute('stop-color', color);
+        statusEl.style.display = 'none';
+      } else {
+        // Fallback to decorative chart if real history couldn't be loaded
+        lineEl.setAttribute('d', genPath(asset.change>=0, true));
+        fillEl.setAttribute('d', genPath(asset.change>=0));
+        statusEl.textContent = 'Live history unavailable — showing placeholder';
+        statusEl.style.display = 'block';
+      }
+    }
+
+    document.querySelectorAll('.range-tab').forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        document.querySelectorAll('.range-tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        loadChart(tab.dataset.range);
+      });
+    });
+
+    loadChart('1D');
 
     const state = () => OregoEngine.getState();
     function refreshStats(){

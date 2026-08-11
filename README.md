@@ -19,10 +19,9 @@ Orego is a client-side practice investing experience: browse a market, place sim
 - **Assets** — allocation breakdown by asset class (Stock / ETF / Crypto / Cash)
 - **Transactions** — full history of simulated buy/sell orders
 - **Dashboard** — account overview with recent activity
-- **Wallet** — displays public network details for **Robinhood Chain** (Chain ID `4663`), Robinhood's public Layer-2 network.
 - **Settings** — reset simulated practice data at any time
 
-All trading data (buying power, holdings, transaction history) is simulated and stored locally in the browser via `localStorage`. Stock/ETF and crypto **prices** are fetched live from real market data providers (see below); no real brokerage account, wallet connection, or money is involved anywhere in the app.
+All trading data (buying power, holdings, transaction history) is simulated and stored locally in the browser via `localStorage`. Stock/ETF and crypto **prices** are fetched live from real market data providers (see below); no real brokerage account or money is involved anywhere in the app.
 
 ### Live price data
 
@@ -45,7 +44,6 @@ If either provider is unreachable (rate limit, offline, etc.), Orego falls back 
 ├── orego-portfolio.html       # Holdings & portfolio value
 ├── orego-assets.html          # Asset allocation breakdown
 ├── orego-transactions.html    # Transaction history
-├── orego-wallet.html          # Robinhood Chain network info page
 ├── orego-settings.html        # Account settings / reset practice data
 └── orego-engine.js            # Shared simulated trading engine (state, pricing, buy/sell logic)
 ```
@@ -80,20 +78,6 @@ No build tools required — it's static HTML.
 4. Save — your site will be live at `https://<username>.github.io/<repo>/`
 
 ---
-
-## ⚠️ Notes on the Wallet page
-
-The **Wallet** page displays the official public parameters for **Robinhood Chain**:
-
-| Property | Value |
-|---|---|
-| Network name | Robinhood Chain |
-| Chain ID | 4663 |
-| RPC URL | `https://rpc.mainnet.chain.robinhood.com` |
-| Currency | ETH |
-| Block explorer | `robinhoodchain.blockscout.com` |
-
-This feature is strictly **read-only**: it can display your connected address, ETH balance, and the chain's latest block number, but it has no ability to send transactions, sign anything beyond a connection request, or move funds in any way.
 
 ---
 
