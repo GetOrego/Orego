@@ -5,7 +5,7 @@
 Orego is a client-side practice investing experience: browse a market, place simulated buy/sell orders, track a portfolio, and review transaction history — all running entirely in the browser with no backend server.
 
 🔗 **Live site:** `https://getorego.github.io/Orego/`
-🐦 **X (Twitter):** [@GetOrego](https://x.com/GetOrego)
+🐦 **X (Twitter):** [@UseOrego](https://x.com/UseOrego)
 
 > **Disclaimer:** Orego is an independent practice trading project. It is not a real brokerage, does not handle real money, and is not affiliated with, endorsed by, or connected to Robinhood Markets, Inc. or any licensed financial institution.
 
@@ -19,10 +19,10 @@ Orego is a client-side practice investing experience: browse a market, place sim
 - **Assets** — allocation breakdown by asset class (Stock / ETF / Crypto / Cash)
 - **Transactions** — full history of simulated buy/sell orders
 - **Dashboard** — account overview with recent activity
-- **Wallet** — optional real Web3 integration: connect a browser wallet (e.g. MetaMask) and read live, read-only on-chain data (address, ETH balance, block height) from **Robinhood Chain** (Chain ID `4663`), Robinhood's public Layer-2 network. No funds can be moved through this app.
+- **Wallet** — displays public network details for **Robinhood Chain** (Chain ID `4663`), Robinhood's public Layer-2 network.
 - **Settings** — reset simulated practice data at any time
 
-All trading data (buying power, holdings, transaction history) is simulated and stored locally in the browser via `localStorage`. Stock/ETF and crypto **prices** are fetched live from real market data providers (see below); no real brokerage account or money is involved anywhere except the optional read-only Wallet page, which only *reads* public on-chain data and never signs or sends transactions.
+All trading data (buying power, holdings, transaction history) is simulated and stored locally in the browser via `localStorage`. Stock/ETF and crypto **prices** are fetched live from real market data providers (see below); no real brokerage account, wallet connection, or money is involved anywhere in the app.
 
 ### Live price data
 
@@ -45,7 +45,7 @@ If either provider is unreachable (rate limit, offline, etc.), Orego falls back 
 ├── orego-portfolio.html       # Holdings & portfolio value
 ├── orego-assets.html          # Asset allocation breakdown
 ├── orego-transactions.html    # Transaction history
-├── orego-wallet.html          # Real wallet connection (Robinhood Chain, read-only)
+├── orego-wallet.html          # Robinhood Chain network info page
 ├── orego-settings.html        # Account settings / reset practice data
 └── orego-engine.js            # Shared simulated trading engine (state, pricing, buy/sell logic)
 ```
@@ -58,7 +58,6 @@ Every page is a self-contained static HTML file styled consistently (dark theme,
 
 - Plain HTML, CSS, and vanilla JavaScript — no build step, no framework
 - `localStorage` for simulated account state
-- [ethers.js](https://docs.ethers.org/) (via CDN) for the optional Wallet page's on-chain reads
 - Fonts: Space Grotesk, Inter, IBM Plex Mono (Google Fonts)
 
 ---
@@ -84,7 +83,7 @@ No build tools required — it's static HTML.
 
 ## ⚠️ Notes on the Wallet page
 
-The **Wallet** page connects to the real, public **Robinhood Chain** network using officially published parameters:
+The **Wallet** page displays the official public parameters for **Robinhood Chain**:
 
 | Property | Value |
 |---|---|
