@@ -125,28 +125,10 @@
 <div class="main">
   <div class="eyebrow">On-Chain</div>
   <h1>Wallet</h1>
-  <p class="lead">Connect a real wallet and read live data from Robinhood Chain.</p>
+  <p class="lead">Public network details for Robinhood Chain.</p>
 
   <div class="disclaimer">
-    <b>Read-only, independent project.</b> This connects to the public Robinhood Chain network to display real on-chain data (address, ETH balance, block height) using your own wallet. Orego cannot move, spend, or trade your funds — there is no transaction-signing feature here. Orego is an independent app and is not affiliated with or endorsed by Robinhood Markets, Inc.
-  </div>
-
-  <div class="panel">
-    <div class="net-badge"><span class="net-dot" id="net-dot"></span><span id="net-status">Not connected</span></div>
-    <h3>Connect Wallet</h3>
-    <p class="sub">Requires a browser wallet such as MetaMask. You'll be prompted to add/switch to Robinhood Chain (Chain ID 4663) if it isn't already in your wallet.</p>
-    <button class="btn btn-primary" id="connect-btn">Connect Wallet</button>
-    <div class="msg" id="connect-msg"></div>
-  </div>
-
-  <div class="panel" id="account-panel" style="display:none;">
-    <h3>Account</h3>
-    <p class="sub">Live data read directly from Robinhood Chain via your wallet's provider.</p>
-    <div class="row"><span class="label">Address</span><span class="value addr" id="acc-address">—</span></div>
-    <div class="row"><span class="label">ETH balance</span><span class="value" id="acc-balance">—</span></div>
-    <div class="row"><span class="label">Latest block</span><span class="value" id="acc-block">—</span></div>
-    <div class="row"><span class="label">Network</span><span class="value" id="acc-network">—</span></div>
-    <button class="btn btn-ghost" id="refresh-btn" style="margin-top:16px;">Refresh</button>
+    <b>Independent project.</b> Orego is an independent app and is not affiliated with or endorsed by Robinhood Markets, Inc.
   </div>
 
   <div class="panel">
@@ -162,104 +144,5 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
-<script>
-  const ROBINHOOD_CHAIN = {
-    chainIdHex: '0x1237', // 4663
-    chainIdDec: 4663,
-    chainName: 'Robinhood Chain',
-    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-    rpcUrls: ['https://rpc.mainnet.chain.robinhood.com'],
-    blockExplorerUrls: ['https://robinhoodchain.blockscout.com'],
-  };
-
-  const connectBtn = document.getElementById('connect-btn');
-  const refreshBtn = document.getElementById('refresh-btn');
-  const msg = document.getElementById('connect-msg');
-  const netDot = document.getElementById('net-dot');
-  const netStatus = document.getElementById('net-status');
-  const accountPanel = document.getElementById('account-panel');
-
-  function setMsg(text, type){
-    msg.textContent = text || '';
-    msg.className = 'msg' + (type ? ' ' + type : '');
-  }
-
-  async function ensureRobinhoodChain(){
-    try{
-      await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: ROBINHOOD_CHAIN.chainIdHex }],
-      });
-    }catch(switchErr){
-      if(switchErr.code === 4902){
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: ROBINHOOD_CHAIN.chainIdHex,
-            chainName: ROBINHOOD_CHAIN.chainName,
-            nativeCurrency: ROBINHOOD_CHAIN.nativeCurrency,
-            rpcUrls: ROBINHOOD_CHAIN.rpcUrls,
-            blockExplorerUrls: ROBINHOOD_CHAIN.blockExplorerUrls,
-          }],
-        });
-      } else {
-        throw switchErr;
-      }
-    }
-  }
-
-  async function refreshAccountData(){
-    if(!window.ethereum) return;
-    try{
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
-      const network = await provider.getNetwork();
-      const balanceWei = await provider.getBalance(address);
-      const blockNumber = await provider.getBlockNumber();
-
-      document.getElementById('acc-address').textContent = address.slice(0,6) + '…' + address.slice(-4);
-      document.getElementById('acc-balance').textContent = parseFloat(ethers.formatEther(balanceWei)).toFixed(5) + ' ETH';
-      document.getElementById('acc-block').textContent = '#' + blockNumber.toLocaleString();
-      document.getElementById('acc-network').textContent = network.chainId.toString() === String(ROBINHOOD_CHAIN.chainIdDec) ? 'Robinhood Chain ✓' : `Chain ID ${network.chainId} (unexpected)`;
-
-      accountPanel.style.display = 'block';
-      netDot.classList.add('live');
-      netStatus.textContent = 'Connected · Robinhood Chain';
-    }catch(e){
-      setMsg('Could not read on-chain data: ' + (e.message || e), 'error');
-    }
-  }
-
-  connectBtn.addEventListener('click', async ()=>{
-    if(!window.ethereum){
-      setMsg('No browser wallet detected. Install MetaMask or another EIP-1193 wallet to continue.', 'error');
-      return;
-    }
-    connectBtn.disabled = true;
-    setMsg('Requesting wallet connection…', 'info');
-    try{
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
-      setMsg('Switching to Robinhood Chain…', 'info');
-      await ensureRobinhoodChain();
-      setMsg('', null);
-      await refreshAccountData();
-      connectBtn.textContent = 'Connected';
-    }catch(e){
-      setMsg(e.message || 'Connection failed or was rejected.', 'error');
-      connectBtn.disabled = false;
-    }
-  });
-
-  refreshBtn.addEventListener('click', refreshAccountData);
-
-  if(window.ethereum){
-    window.ethereum.on && window.ethereum.on('accountsChanged', refreshAccountData);
-    window.ethereum.on && window.ethereum.on('chainChanged', ()=> window.location.reload());
-  } else {
-    setMsg('No browser wallet detected. Install MetaMask or another EIP-1193 wallet to connect.', 'info');
-  }
-</script>
 </body>
 </html>
