@@ -55,6 +55,44 @@ const OregoEngine = (() => {
 
   function getLiveStockPricesFetchedAt(){ return liveStockPricesFetchedAt; }
 
+  // Fetch real historical price series for a symbol. range: '1D' | '7D' | '1M'
+  // Returns an array of { time, price } in chronological order, or null on failure.
+  async function fetchHistoricalPrices(symbol, range){
+    range = range || '7D';
+    try{
+      if(COINGECKO_IDS[symbol]){
+        const daysMap = { '1D':1, '7D':7, '1M':30 };
+        const days = daysMap[range] || 7;
+        const id = COINGECKO_IDS[symbol];
+        const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${days}`;
+        const res = await fetch(url);
+        if(!res.ok) throw new Error('CoinGecko history failed: ' + res.status);
+        const data = await res.json();
+        if(!data.prices || !data.prices.length) throw new Error('No price history returned');
+        return data.prices.map(([t, p]) => ({ time: t, price: p }));
+      }
+
+      if(STOCK_SYMBOLS.includes(symbol)){
+        const paramsMap = {
+          '1D': { interval:'15min', outputsize:26 },
+          '7D': { interval:'1h', outputsize:49 },
+          '1M': { interval:'1day', outputsize:30 },
+        };
+        const p = paramsMap[range] || paramsMap['7D'];
+        const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=${p.interval}&outputsize=${p.outputsize}&apikey=${TWELVE_DATA_API_KEY}`;
+        const res = await fetch(url);
+        if(!res.ok) throw new Error('Twelve Data history failed: ' + res.status);
+        const data = await res.json();
+        if(data.status === 'error' || !data.values || !data.values.length) throw new Error(data.message || 'No price history returned');
+        return data.values.slice().reverse().map(v => ({ time: new Date(v.datetime).getTime(), price: parseFloat(v.close) }));
+      }
+
+      return null;
+    }catch(e){
+      return null;
+    }
+  }
+
   async function fetchLiveCryptoPrices(){
     try{
       const ids = Object.values(COINGECKO_IDS).join(',');
@@ -191,5 +229,31 @@ const OregoEngine = (() => {
     return days + 'd ago';
   }
 
-  return { getState, saveState, getAsset, buy, sell, portfolioValue, formatMoney, formatQty, timeAgo, setLoggedIn, isLoggedIn, seedState, fetchLiveCryptoPrices, getLivePricesFetchedAt, fetchLiveStockPrices, getLiveStockPricesFetchedAt };
+  // Reads live public network data from Robinhood Chain via its public RPC endpoint.
+  // No wallet connection required — this is a plain read-only JSON-RPC call.
+  async function fetchChainNetworkStatus(){
+    const RPC_URL = 'https://rpc.mainnet.chain.robinhood.com';
+    const rpcCall = (method) => fetch(RPC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc:'2.0', method, params:[], id:1 }),
+    }).then(r => r.json());
+
+    try{
+      const [blockRes, gasRes, chainRes] = await Promise.all([
+        rpcCall('eth_blockNumber'),
+        rpcCall('eth_gasPrice'),
+        rpcCall('eth_chainId'),
+      ]);
+      const blockNumber = parseInt(blockRes.result, 16);
+      const gasPriceGwei = parseInt(gasRes.result, 16) / 1e9;
+      const chainId = parseInt(chainRes.result, 16);
+      if(isNaN(blockNumber) || isNaN(chainId)) throw new Error('Malformed RPC response');
+      return { ok:true, blockNumber, gasPriceGwei, chainId };
+    }catch(e){
+      return { ok:false, reason: e.message };
+    }
+  }
+
+  return { getState, saveState, getAsset, buy, sell, portfolioValue, formatMoney, formatQty, timeAgo, setLoggedIn, isLoggedIn, seedState, fetchLiveCryptoPrices, getLivePricesFetchedAt, fetchLiveStockPrices, getLiveStockPricesFetchedAt, fetchHistoricalPrices, fetchChainNetworkStatus };
 })();
