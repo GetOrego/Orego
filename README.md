@@ -5,7 +5,7 @@
 Orego is a client-side practice investing experience: browse a market, place simulated buy/sell orders, track a portfolio, and review transaction history — all running entirely in the browser with no backend server.
 
 🔗 **Live site:** `https://getorego.github.io/Orego/`
-🐦 **X (Twitter):** [@UseOrego](https://x.com/UseOrego)
+🐦 **X (Twitter):** [@useorego](https://x.com/useorego)
 
 > **Disclaimer:** Orego is an independent practice trading project. It is not a real brokerage, does not handle real money, and is not affiliated with, endorsed by, or connected to Robinhood Markets, Inc. or any licensed financial institution.
 

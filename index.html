@@ -161,6 +161,14 @@
   .hero-cta{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   .hero-note{ font-size:12.5px; color:var(--muted-2); margin-top:16px; }
 
+  .chain-badge{
+    display:inline-flex; align-items:center; gap:9px; margin-top:16px;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:20px;
+    padding:8px 16px; font-size:12.5px; color:var(--muted); font-family:'IBM Plex Mono', monospace;
+  }
+  .chain-dot{ width:7px; height:7px; border-radius:50%; background:var(--muted-2); flex-shrink:0; }
+  .chain-dot.live{ background:var(--gain); box-shadow:0 0 0 3px var(--gain-soft); }
+
   .stat-row{ display:flex; gap:34px; margin-top:44px; flex-wrap:wrap; }
   .stat-row .n{ font-family:'Space Grotesk'; font-size:24px; font-weight:600; }
   .stat-row .l{ font-size:12px; color:var(--muted); margin-top:3px; }
@@ -423,6 +431,11 @@
         </div>
         <div class="hero-note">No credit card required · ID verification in 5 minutes · Start with $10</div>
 
+        <div class="chain-badge" id="chain-badge">
+          <span class="chain-dot" id="chain-dot"></span>
+          <span id="chain-badge-text">Built on Robinhood Chain</span>
+        </div>
+
         <div class="stat-row">
           <div>
             <div class="n num">$10</div>
@@ -661,7 +674,7 @@
         </div>
         <p>A retail investing platform that makes stocks, ETFs, and crypto accessible to everyone.</p>
         <div class="foot-social">
-          <a href="https://x.com/UseOrego" target="_blank" rel="noopener" aria-label="Orego on X">
+          <a href="https://x.com/useorego" target="_blank" rel="noopener" aria-label="Orego on X">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-6.9L4.7 22H1.6l8.1-9.3L.8 2h7l4.9 6.3L18.9 2Zm-1.2 18h1.9L6.4 4H4.4l13.3 16Z"/></svg>
           </a>
           <a href="https://linkedin.com/company/orego" target="_blank" rel="noopener" aria-label="Orego on LinkedIn">
@@ -669,7 +682,7 @@
           </a>
         </div>
         <p style="font-size:11.5px; color:var(--muted-2); margin-top:14px; line-height:1.6; max-width:260px;">
-          ⚠️ The only official account is <a href="https://x.com/UseOrego" target="_blank" rel="noopener" style="color:var(--gold); font-weight:600;">@UseOrego</a>. Beware of copycat accounts and lookalike websites impersonating Orego.
+          ⚠️ The only official account is <a href="https://x.com/useorego" target="_blank" rel="noopener" style="color:var(--gold); font-weight:600;">@useorego</a>. Beware of copycat accounts and lookalike websites impersonating Orego.
         </p>
       </div>
       <div class="foot-col">
@@ -723,6 +736,22 @@
   } else {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('in-view'));
   }
+
+  // Confirm we're genuinely reading live data from Robinhood Chain's public RPC
+  async function updateChainBadge(){
+    const result = await OregoEngine.fetchChainNetworkStatus();
+    const dot = document.getElementById('chain-dot');
+    const text = document.getElementById('chain-badge-text');
+    if(result.ok){
+      dot.classList.add('live');
+      text.textContent = `Built on Robinhood Chain · Block #${result.blockNumber.toLocaleString()} · Chain ${result.chainId}`;
+    } else {
+      dot.classList.remove('live');
+      text.textContent = 'Built on Robinhood Chain';
+    }
+  }
+  updateChainBadge();
+  setInterval(updateChainBadge, 20000);
 </script>
 <script>
   const symbols = [
