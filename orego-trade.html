@@ -233,7 +233,7 @@
             <label for="qty">Quantity (${asset.class === 'Crypto' ? 'coins' : 'shares'})</label>
             <div class="qty-input">
               <button type="button" id="qty-dec">−</button>
-              <input type="number" id="qty" value="1" min="0" step="${asset.class==='Crypto'?'0.01':'1'}">
+              <input type="number" id="qty" value="1" min="0" step="0.01">
               <button type="button" id="qty-inc">+</button>
             </div>
           </div>
